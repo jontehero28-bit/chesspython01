@@ -15,14 +15,7 @@ width = height = 512 #squares 64px64p
 dimension = 8 #Board size 8x8
 squareSize =  height// dimension #Math/ 8x8 = 64 512/8 = 64. squareSize 64x64 pixels.
 images = {} #will use as a dictionary of images. images are taken from here https://drive.google.com/drive/folders/1qH7IQj5lj7o3MQIb5TAZhsDr_5f9p8aq
-
-
-
-
-
-
-
-            
+fps = 60
             
 #----------------------------------------------------------------------------------------------------
 #I use this way instead of using 
@@ -33,7 +26,7 @@ images = {} #will use as a dictionary of images. images are taken from here http
 def loadImages():
     pieces = ["wP", "wR", "wN", "wB", "wK", "wQ", "wB", "wN", "wR", "bP", "bR", "bN", "bB", "bK", "bQ", "bB", "bN", "bR"]
     for piece in pieces:    
-        images[piece] = pygame.transform.scale(pygame.image.load("images/" + piece + ".png")), (squareSize, squareSize)  #scale images to square size
+        images[piece] = pygame.transform.scale(pygame.image.load("images/" + piece + ".png"), (squareSize, squareSize))  #scale images to square size
         #write "images[wP]" to acess picture from the library.
     
 #----------------------------------------------------------------------------------------------------
@@ -44,8 +37,7 @@ def main():
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Chess")
     timer = pygame.time.Clock()
-    fps = 60
-    screen.fill(pygame.Color("white"))
+    
     gs = engine.GameState()  #gs = gamestate
     drawGameState(screen, gs)
     loadImages()
@@ -65,13 +57,18 @@ def drawGameState(screen, gs):
     drawBoard(screen)
     drawPieces(screen, gs.board)
  
-#draw squares   
+#draw squares *Remember chess board top left square always white, down left square always black. White squares are odd numbers and blacks are squares.
+#https://stackoverflow.com/questions/45945254/make-a-88-chessboard-in-pygame-with-python partly followed this
 def drawBoard(screen):
- 
+    colors = [pygame.Color("white"), pygame.Color("black")]      
+    for r in range(dimension): #for 8 rows (dimension = 8)
+        for c in range(dimension): #for 8 columns
+            color = colors[((r+c)%2)]  #chatGPT hepled me here, (from chatGPT) color = BOARD_COLOR_1 if (row + col) % 2 == 0 else BOARD_COLOR_2v
+            pygame.draw.rect(screen, color, pygame.Rect(c*squareSize, r*squareSize, squareSize, squareSize))  #(ChatGPT) pygame.draw.rect(screen, color, pygame.Rect(col*SQUARE_SIZE, row*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
 #draw pieces  
 def drawPieces(screen, gs):
+    pass
     
-    
-if __main__ == "__main__":
-    main()
+#if __main__ == "__main__":
+main()
