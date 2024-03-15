@@ -28,7 +28,6 @@ def loadImages():
     for piece in pieces:    
         images[piece] = pygame.transform.scale(pygame.image.load("images/" + piece + ".png"), (squareSize, squareSize))  #scale images to square size
         #write "images[wP]" to acess picture from the library.
-    
 #----------------------------------------------------------------------------------------------------
 #handle user input and graphics
 def main():
@@ -39,8 +38,8 @@ def main():
     timer = pygame.time.Clock()
     
     gs = engine.GameState()  #gs = gamestate
-    drawGameState(screen, gs)
     loadImages()
+    drawGameState(screen, gs)
     
     #GameRunning /press x to quit
     running = True
@@ -49,8 +48,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             timer.tick(fps)
-            pygame.display.flip()
-            
+            pygame.display.flip()     
     
 #Graphics and drawing.
 def drawGameState(screen, gs):
@@ -60,15 +58,19 @@ def drawGameState(screen, gs):
 #draw squares *Remember chess board top left square always white, down left square always black. White squares are odd numbers and blacks are squares.
 #https://stackoverflow.com/questions/45945254/make-a-88-chessboard-in-pygame-with-python partly followed this
 def drawBoard(screen):
-    colors = [pygame.Color("white"), pygame.Color("black")]      
+    colors = [pygame.Color("beige"), pygame.Color("dark green")]      
     for r in range(dimension): #for 8 rows (dimension = 8)
         for c in range(dimension): #for 8 columns
             color = colors[((r+c)%2)]  #chatGPT hepled me here, (from chatGPT) color = BOARD_COLOR_1 if (row + col) % 2 == 0 else BOARD_COLOR_2v
             pygame.draw.rect(screen, color, pygame.Rect(c*squareSize, r*squareSize, squareSize, squareSize))  #(ChatGPT) pygame.draw.rect(screen, color, pygame.Rect(col*SQUARE_SIZE, row*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
 #draw pieces  
-def drawPieces(screen, gs):
-    pass
+def drawPieces(screen, board):
+    for r in range(dimension):
+        for c in range(dimension):
+            piece = board[r][c]
+            if piece != "--":
+                screen.blit(images[piece], pygame.Rect(c*squareSize, r*squareSize, squareSize, squareSize))
     
 #if __main__ == "__main__":
 main()
