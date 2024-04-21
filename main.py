@@ -29,7 +29,7 @@ def loadImages():
         images[piece] = pygame.transform.scale(pygame.image.load("images/" + piece + ".png"), (squareSize, squareSize))  #scale images to square size
         #write "images[wP]" to acess picture from the library.
 #----------------------------------------------------------------------------------------------------
-#handle user input and graphics
+#handle user input
 def main():
     
     #Size for game screen and name and timer
@@ -54,10 +54,10 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 
-            elif event.type == pygame.MOUSEBUTTONDOWN:          #elif = if previous condition were not true, try this condition
+            elif event.type == pygame.MOUSEBUTTONDOWN:                #elif = if previous condition were not true, try this condition
                 location = pygame.mouse.get_pos()                     #(x, y) location for the mouse.
-                colClicked = location[0]//squareSize            #so that it would know where player clicked.
-                rowClicked = location[1]//squareSize            #problem: it can store only one position where the player clicked. If the player clicks on another piece it will run out of variable space.
+                colClicked = location[0]//squareSize                  #so that it would know where player clicked.
+                rowClicked = location[1]//squareSize                  #problem: it can store only one position where the player clicked. If the player clicks on another piece it will run out of variable space.
                 
                 if squareSelected == (rowClicked, colClicked):                #user clicked on the same square twice (NOT VALID MOVE)
                     squareSelected = ()                         #deselect
@@ -67,16 +67,23 @@ def main():
                     squareSelected = (rowClicked, colClicked)   #store information about row and col
                     playerClicks.append(squareSelected)         #Both for 1st and 2nd click .append adds a element to the list. In this case data about where player clicked. 
                     
+                
+                    
                 #now check if this was players 2nd click
                 if len(playerClicks) == 2: #len = length. if after second click
+                    if gs.board[playerClicks[0][0]][playerClicks[0][1]] == "--":
+                        squareSelected = ()  # Reset the squareSelected value.
+                        playerClicks = []  # Reset the playerClicks list.
                     #if player did 2nd click  change the piece position:
                     move = engine.Move(playerClicks[0], playerClicks[1], gs.board) 
                     print(move.getChessLikeNotation())
                     gs.MovePiece(move)
                     squareSelected = () #remove information about which square was selected.
                     playerClicks = []   #so it would not be bigger than 2
+                
+                
                     
-                          
+            drawGameState(screen, gs)             
             time.tick(fps)
             pygame.display.flip()     
     
@@ -85,7 +92,7 @@ def drawGameState(screen, gs):
     drawBoard(screen)
     drawPieces(screen, gs.board)
  
-#d White squares are odd numbers and blacks are squares.
+#White squares are odd numbers and blacks are squares.
 #https://stackoverflow.com/questions/45945254/make-a-88-chessboard-in-pygame-with-python partly followed this
 def drawBoard(screen):
     colors = [pygame.Color("beige"), pygame.Color("dark green")]      
