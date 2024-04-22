@@ -21,7 +21,7 @@ class ChessPiece:
         self.image = pygame.image.load(imageLoad)
         self.position = None  # To track the piece's position
 
-    def get_symbol(self):
+    def get_symbol(self): #return all of the values cuz
         return self.symbol
 
     def get_color(self):
@@ -33,7 +33,7 @@ class ChessPiece:
     def set_position(self, position):
         self.position = position
 
-class King(ChessPiece):
+class King(ChessPiece): #subclass for all the chesspieces
     def __init__(self, color, image_path):
         super().__init__('K', color, image_path)
         self.position = None
@@ -42,34 +42,34 @@ class King(ChessPiece):
         moves = []
         current_row, current_col = self.position
 
-        # Define all possible directions for the King to move
+        # Define all possible directions for the King to move    #NOTE There is better way to do it. King move like a rook or a bishop but only one square at a time
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
                       (1, 1), (-1, 1), (1, -1), (-1, -1)]
 
-        for dr, dc in directions:
+        for dr, dc in directions:   #dr= direction row dc= direction column put this together with current row and current col. Put it for the targeted piece
             new_row, new_col = current_row + dr, current_col + dc
             if 0 <= new_row < 8 and 0 <= new_col < 8:
-                target_piece = board.get_piece_at(new_row, new_col)
-                if not target_piece or target_piece.color != self.color:
+                targetPiece = board.get_piece_at(new_row, new_col)    #get the position on the board. newRow and newCol
+                if not targetPiece or targetPiece.color != self.color:
                     moves.append((new_row, new_col))
 
         return moves
-        pass  # TODO: Needs logic for the "castling" rule
+        pass  # TODO: Needs logic for the "castling" rule maybe wont do.
 
 
-class Queen(ChessPiece):
+class Queen(ChessPiece):                   #NOTE there is better way to do it. Queen moves like a bishop or a rook so i could just paste rooks and bishops move there.
     def __init__(self, color, image_path):
         super().__init__('Q', color, image_path)
         self.position = None
 
-    def get_moves(self, board):
+    def get_moves(self, board): #it should do it as long as it wants. NOTE maybe it does not work.
         moves = []
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),  # vertical and horizontal movement
                       (1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal movement
 
         current_row, current_col = self.position
 
-        for dr, dc in directions:
+        for dr, dc in directions:  # and so it should go all the way.  #dr= direction row dc= direction column put this together with current row and current col. Put it for the targeted piece
             for i in range(1, 8):  # Queen can move up to 7 squares in any direction
                 new_row, new_col = current_row + i * dr, current_col + i * dc
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
@@ -87,7 +87,7 @@ class Queen(ChessPiece):
         pass
 
 
-class Rook(ChessPiece):
+class Rook(ChessPiece): #Rook similar to queen. Just copy queens move and change a little. NOTE later i can paste bishop and rook.
     def __init__(self, color, image_path):
         super().__init__('R', color, image_path)
         self.position = None
@@ -116,14 +116,14 @@ class Rook(ChessPiece):
         pass
 
 
-class Bishop(ChessPiece):
+class Bishop(ChessPiece): #subclass for bishop
     def __init__(self, color, image_path):
         super().__init__('B', color, image_path)
         self.position = None
 
     def get_moves(self, board):
         moves = []
-        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal
+        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal like moving
 
         current_row, current_col = self.position
 
@@ -131,11 +131,11 @@ class Bishop(ChessPiece):
             for i in range(1, 8):  # Bishop can move up to 7 squares in any direction
                 new_row, new_col = current_row + i * dr, current_col + i * dc
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    target_piece = board.get_piece_at(new_row, new_col)
+                    target_piece = board.get_piece_at(new_row, new_col)   #break that
                     if not target_piece:
                         moves.append((new_row, new_col))
                     elif target_piece.color != self.color:
-                        moves.append((new_row, new_col))
+                        moves.append((new_row, new_col))   #exit this loop if condition is met. Fr
                         break
                     else:
                         break
@@ -146,12 +146,12 @@ class Bishop(ChessPiece):
         pass
 
 
-class Knight(ChessPiece):
+class Knight(ChessPiece): #subclass knight
     def __init__(self, color, image_path):
         super().__init__('N', color, image_path)
         self.position = None
 
-    def get_moves(self, board):
+    def get_moves(self, board): #moves in L form. https://stackoverflow.com/questions/19372622/how-do-i-generate-all-of-a-knights-moves 
         moves = []
         offsets = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
                    (1, -2), (1, 2), (2, -1), (2, 1)]
@@ -169,7 +169,7 @@ class Knight(ChessPiece):
         pass
 
 
-class Pawn(ChessPiece):
+class Pawn(ChessPiece): #subclass for pawns
     # Previous move coordinates
     previous_move = None
 
