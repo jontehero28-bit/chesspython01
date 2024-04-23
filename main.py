@@ -5,15 +5,11 @@ import sys
 # Initialize
 pygame.init()
 
-# Some initial variables
-width, height = 512, 512
-dimension = 8
-squareSize = width // dimension
-timer = pygame.time.Clock()
-fps = 60
+# Some initial variables were moved to other classes to free up main.py
+
+
 
 # ChessPiece class that has the main functionalities that all the chesspieces have. SUPERCLASS
-
 
 class ChessPiece:
     def __init__(self, symbol, color, imageLoad):
@@ -292,19 +288,19 @@ class ChessBoard:
         if 0 <= row < 8 and 0 <= col < 8:
             self.board[row][col] = ""
 
-
-
 # Main game loop
 class GameState:
     
-    def main():
+    def main(width, height, squareSize):
+        timer = pygame.time.Clock()
+        fps = 60
+        
         ch = ChessBoard()
         selected_piece = None
         screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Chess Game")
         drawGameState(screen, ch)
     
-
         # Initialize ChessBoard
         
         while True:
@@ -343,13 +339,12 @@ class GameState:
             timer.tick(fps)
             pygame.display.flip()  # Update the screen
 
+class Draw:
+    width, height = 512, 512
+    dimension = 8
+    squareSize = width // dimension
     
-def drawGameState(screen, ch):
-    Draw.drawBoard(screen)
-    Draw.drawPieces(screen, ch)
-
-class Draw():
-    def drawBoard(screen):
+    def drawBoard(screen, dimension, squareSize):
     # Draw the chessboard
      colors = [pygame.Color("beige"), pygame.Color("dark green")]
      for r in range(dimension):  # for 8 rows (dimension = 8)
@@ -358,7 +353,7 @@ class Draw():
             color = colors[((r+c) % 2)]
             pygame.draw.rect(screen, color, pygame.Rect(
                 c*squareSize, r*squareSize, squareSize, squareSize))
-    def drawPieces(screen, ch):
+    def drawPieces(screen, ch, squareSize):
     # Draw the pieces
      for row in range(8):
          for col in range(8):
@@ -366,10 +361,10 @@ class Draw():
             if piece:
                 screen.blit(piece.get_image(),
                             (col * squareSize, row * squareSize))
-
-
-
-
+                
+def drawGameState(screen, ch):
+    Draw.drawBoard(screen, Draw.dimension, Draw.squareSize)
+    Draw.drawPieces(screen, ch, Draw.squareSize)
 
 if __name__ == "__main__":
-    GameState.main()
+    GameState.main(Draw.width, Draw.height, Draw.squareSize)
