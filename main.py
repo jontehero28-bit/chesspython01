@@ -1,18 +1,20 @@
-#Import Modules/Libraries
+# Import Modules/Libraries
 import pygame
 import sys
 
 # Initialize
 pygame.init()
 
-#Some initial variables
+# Some initial variables
 width, height = 512, 512
 dimension = 8
 squareSize = width // dimension
 timer = pygame.time.Clock()
 fps = 60
 
-# ChessPiece class that has the main functionalities that all the chesspieces have.
+# ChessPiece class that has the main functionalities that all the chesspieces have. SUPERCLASS
+
+
 class ChessPiece:
     def __init__(self, symbol, color, imageLoad):
         self.symbol = symbol
@@ -21,7 +23,7 @@ class ChessPiece:
         self.image = pygame.image.load(imageLoad)
         self.position = None  # To track the piece's position
 
-    def get_symbol(self): #return all of the values cuz
+    def get_symbol(self):  # return all of the values cuz
         return self.symbol
 
     def get_color(self):
@@ -33,7 +35,8 @@ class ChessPiece:
     def set_position(self, position):
         self.position = position
 
-class King(ChessPiece): #subclass for all the chesspieces
+
+class King(ChessPiece):  # subclass for all the chesspieces
     def __init__(self, color, image_path):
         super().__init__('K', color, image_path)
         self.position = None
@@ -46,10 +49,11 @@ class King(ChessPiece): #subclass for all the chesspieces
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),
                       (1, 1), (-1, 1), (1, -1), (-1, -1)]
 
-        for dr, dc in directions:   #dr= direction row dc= direction column put this together with current row and current col. Put it for the targeted piece
+        for dr, dc in directions:  # dr= direction row dc= direction column put this together with current row and current col. Put it for the targeted piece
             new_row, new_col = current_row + dr, current_col + dc
             if 0 <= new_row < 8 and 0 <= new_col < 8:
-                targetPiece = board.get_piece_at(new_row, new_col)    #get the position on the board. newRow and newCol
+                # get the position on the board. newRow and newCol
+                targetPiece = board.get_piece_at(new_row, new_col)
                 if not targetPiece or targetPiece.color != self.color:
                     moves.append((new_row, new_col))
 
@@ -57,12 +61,14 @@ class King(ChessPiece): #subclass for all the chesspieces
         pass  # TODO: Needs logic for the "castling" rule maybe wont do.
 
 
-class Queen(ChessPiece):                   #NOTE there is better way to do it. Queen moves like a bishop or a rook so i could just paste rooks and bishops move there.
+# NOTE there is better way to do it. Queen moves like a bishop or a rook so i could just paste rooks and bishops move there.
+class Queen(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('Q', color, image_path)
         self.position = None
 
-    def get_moves(self, board): #it should do it as long as it wants. NOTE maybe it does not work.
+    # it should do it as long as it wants. NOTE maybe it does not work.
+    def get_moves(self, board):
         moves = []
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1),  # vertical and horizontal movement
                       (1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal movement
@@ -77,6 +83,7 @@ class Queen(ChessPiece):                   #NOTE there is better way to do it. Q
                     if not target_piece:
                         moves.append((new_row, new_col))
                     elif target_piece.color != self.color:
+                        # exit this loop if condition is met. Fr
                         moves.append((new_row, new_col))
                         break
                     else:
@@ -87,14 +94,16 @@ class Queen(ChessPiece):                   #NOTE there is better way to do it. Q
         pass
 
 
-class Rook(ChessPiece): #Rook similar to queen. Just copy queens move and change a little. NOTE later i can paste bishop and rook.
+# Rook similar to queen. Just copy queens move and change a little. NOTE later i can paste bishop and rook.
+class Rook(ChessPiece):
     def __init__(self, color, image_path):
         super().__init__('R', color, image_path)
         self.position = None
 
     def get_moves(self, board):
         moves = []
-        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]  # vertical and horizontal movement
+        # vertical and horizontal movement
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
         current_row, current_col = self.position
 
@@ -106,6 +115,7 @@ class Rook(ChessPiece): #Rook similar to queen. Just copy queens move and change
                     if not target_piece:
                         moves.append((new_row, new_col))
                     elif target_piece.color != self.color:
+                        # exit this loop if condition is met. Fr
                         moves.append((new_row, new_col))
                         break
                     else:
@@ -116,14 +126,15 @@ class Rook(ChessPiece): #Rook similar to queen. Just copy queens move and change
         pass
 
 
-class Bishop(ChessPiece): #subclass for bishop
+class Bishop(ChessPiece):  # subclass for bishop
     def __init__(self, color, image_path):
         super().__init__('B', color, image_path)
         self.position = None
 
     def get_moves(self, board):
         moves = []
-        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]  # diagonal like moving
+        # diagonal like moving
+        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
 
         current_row, current_col = self.position
 
@@ -131,11 +142,13 @@ class Bishop(ChessPiece): #subclass for bishop
             for i in range(1, 8):  # Bishop can move up to 7 squares in any direction
                 new_row, new_col = current_row + i * dr, current_col + i * dc
                 if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    target_piece = board.get_piece_at(new_row, new_col)   #break that
+                    target_piece = board.get_piece_at(
+                        new_row, new_col)  # break that
                     if not target_piece:
                         moves.append((new_row, new_col))
                     elif target_piece.color != self.color:
-                        moves.append((new_row, new_col))   #exit this loop if condition is met. Fr
+                        # exit this loop if condition is met. Fr
+                        moves.append((new_row, new_col))
                         break
                     else:
                         break
@@ -146,12 +159,13 @@ class Bishop(ChessPiece): #subclass for bishop
         pass
 
 
-class Knight(ChessPiece): #subclass knight
+class Knight(ChessPiece):  # subclass knight
     def __init__(self, color, image_path):
         super().__init__('N', color, image_path)
         self.position = None
 
-    def get_moves(self, board): #moves in L form. https://stackoverflow.com/questions/19372622/how-do-i-generate-all-of-a-knights-moves 
+    # moves in L form. https://stackoverflow.com/questions/19372622/how-do-i-generate-all-of-a-knights-moves
+    def get_moves(self, board):
         moves = []
         offsets = [(-2, -1), (-2, 1), (-1, -2), (-1, 2),
                    (1, -2), (1, 2), (2, -1), (2, 1)]
@@ -169,7 +183,7 @@ class Knight(ChessPiece): #subclass knight
         pass
 
 
-class Pawn(ChessPiece): #subclass for pawns
+class Pawn(ChessPiece):  # subclass for pawns
     # Previous move coordinates
     previous_move = None
 
@@ -209,7 +223,6 @@ class Pawn(ChessPiece): #subclass for pawns
         return moves
         pass  # TODO: Needs logic for the "en passant" rule
 
-# Additional code for Queen, Rook, Bishop, Knight, and Pawn classes
 
 # Initialize ChessBoard class
 class ChessBoard:
@@ -224,10 +237,10 @@ class ChessBoard:
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"],
         ]
-        # Initialize the position of each piece
+        # Initialize the position of each piece NOTE before it made new positions every frame. this strcuture initilazises pos and board
         self.initialize_pieces()
 
-    def initialize_pieces(self):
+    def initialize_pieces(self):  # should get rid of this
         piece_map = {
             "r": Rook("black", "images/bR.png"),
             "n": Knight("black", "images/bN.png"),
@@ -251,7 +264,7 @@ class ChessBoard:
                     piece = piece_map[symbol]
                     piece.set_position((row, col))
 
-    def get_piece_at(self, row, col):
+    def get_piece_at(self, row, col):  # get pieces at following position
         if 0 <= row < 8 and 0 <= col < 8:
             piece_symbol = self.board[row][col]
             if piece_symbol:
@@ -279,62 +292,84 @@ class ChessBoard:
         if 0 <= row < 8 and 0 <= col < 8:
             self.board[row][col] = ""
 
-# Game loop
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Chess Game")
 
-# Initialize ChessBoard
-chess_board = ChessBoard()
-selected_piece = None
+
 # Main game loop
-while True:
-  
-    timer.tick(fps)
+class GameState:
+    
+    def main():
+        ch = ChessBoard()
+        selected_piece = None
+        screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Chess Game")
+        drawGameState(screen, ch)
+    
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+        # Initialize ChessBoard
+        
+        while True:
+            timer.tick(fps)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                    
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        clicked_row = mouse_pos[1] // squareSize
+                        clicked_col = mouse_pos[0] // squareSize
+                        clicked_piece = ch.get_piece_at(clicked_row, clicked_col)
+                        
+                        if clicked_piece:
+                            selected_piece = clicked_piece
+                        else:
+                            selected_piece = None
+                            
+                            if selected_piece:
+                                target_piece = ch.get_piece_at(clicked_row, clicked_col)
+                                if target_piece:
+                                    # Capture the target piece if it exists and it's of the opposite color
+                                    if target_piece.color != selected_piece.color:
+                                        # Check if the selected piece is capable of capturing the target piece
+                                        if (clicked_row, clicked_col) in selected_piece.get_moves(ch):
+                                            target_piece.position = None  # Reset target piece position
+                                            ch.remove_piece(clicked_row, clicked_col)
+                                            selected_piece.move_to(clicked_row, clicked_col)
+                                else:
+                                    # Move the selected piece to the empty square
+                                     selected_piece.move_to(clicked_row, clicked_col)
+                                     
+            drawGameState(screen, ch)
+            timer.tick(fps)
+            pygame.display.flip()  # Update the screen
 
-        # Check if mouse is being clicked and where it is selecting
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            clicked_row = mouse_pos[1] // squareSize
-            clicked_col = mouse_pos[0] // squareSize
-            clicked_piece = chess_board.get_piece_at(clicked_row, clicked_col)
+    
+def drawGameState(screen, ch):
+    Draw.drawBoard(screen)
+    Draw.drawPieces(screen, ch)
 
-            if clicked_piece:
-                selected_piece = clicked_piece
-            else:
-                selected_piece = None
-
-            if selected_piece:
-                target_piece = chess_board.get_piece_at(clicked_row, clicked_col)
-                if target_piece:
-                    # Capture the target piece if it exists and it's of the opposite color
-                    if target_piece.color != selected_piece.color:
-                        # Check if the selected piece is capable of capturing the target piece
-                        if (clicked_row, clicked_col) in selected_piece.get_moves(chess_board):
-                            target_piece.position = None  # Reset target piece position
-                            chess_board.remove_piece(clicked_row, clicked_col)  # Remove the captured piece
-                            selected_piece.move_to(clicked_row, clicked_col)
-
-                else:
-                    # Move the selected piece to the empty square
-                    selected_piece.move_to(clicked_row, clicked_col)
-
+class Draw():
+    def drawBoard(screen):
     # Draw the chessboard
-    colors = [pygame.Color("beige"), pygame.Color("dark green")]      
-    for r in range(dimension): #for 8 rows (dimension = 8)
-        for c in range(dimension): #for 8 columns
-            color = colors[((r+c)%2)]  #chatGPT hepled me here, (from chatGPT) color = BOARD_COLOR_1 if (row + col) % 2 == 0 else BOARD_COLOR_2v
-            pygame.draw.rect(screen, color, pygame.Rect(c*squareSize, r*squareSize, squareSize, squareSize))
-
+     colors = [pygame.Color("beige"), pygame.Color("dark green")]
+     for r in range(dimension):  # for 8 rows (dimension = 8)
+         for c in range(dimension):  # for 8 columns
+            # chatGPT hepled me here, (from chatGPT) color = BOARD_COLOR_1 if (row + col) % 2 == 0 else BOARD_COLOR_2v
+            color = colors[((r+c) % 2)]
+            pygame.draw.rect(screen, color, pygame.Rect(
+                c*squareSize, r*squareSize, squareSize, squareSize))
+    def drawPieces(screen, ch):
     # Draw the pieces
-    for row in range(8):
-        for col in range(8):
-            piece = chess_board.get_piece_at(row, col)
+     for row in range(8):
+         for col in range(8):
+            piece = ch.get_piece_at(row, col)
             if piece:
-                screen.blit(piece.get_image(), (col * squareSize, row * squareSize))
+                screen.blit(piece.get_image(),
+                            (col * squareSize, row * squareSize))
 
-    pygame.display.flip()  # Update the screen
+
+
+
+
+if __name__ == "__main__":
+    GameState.main()
