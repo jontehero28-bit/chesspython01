@@ -29,6 +29,27 @@ class ChessPiece:
 
     def set_position(self, position):
         self.position = position
+    
+    def move_to(self, board, target_position):
+        # current position
+        current_row, current_col = self.position
+        
+        # target position
+        target_row, target_col = target_position
+        
+        # check if capturing piece at target position
+        target_piece = board.get_piece_at(target_row, target_col)
+        if target_piece:
+            # capture the piece if it's the opposite color
+            if target_piece.color != self.color:
+                board.remove_piece(target_row, target_col)
+
+        # update board to reflect piece's new position
+        board.board[current_row][current_col] = ""  # remove piece from current
+        board.board[target_row][target_col] = self.symbol  # place piece on target
+        self.position = target_position  # update piece's position
+        
+
 
 class King(ChessPiece):  # subclass for all the chesspieces
     def __init__(self, color, image_path):
@@ -231,15 +252,7 @@ class ChessBoard:
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"],
         ]
-        self.whiteTurnMove = True
-        self.MoveLog = []
         self.initialize_pieces()  # initialize the pieces
-        
-    def MovePiece(self, move):
-        self.board[move.startRow][move.startCol] = "" #square behind must be empty
-        self.board[move.endRow][move.endCol] = move.pieceMoved
-        self.MoveLog.append(move) #i can use the movelog to undo moves
-        self.whiteTurnMove = not self.whiteTurnMove #swap player turn
         
 
     def initialize_pieces(self):
@@ -294,36 +307,6 @@ class ChessBoard:
         if 0 <= row < 8 and 0 <= col < 8:
             self.board[row][col] = ""  # remove piece from board
             
-class Move():
-    
-    #making new map key values
-    #key : value
-    #new keyvalues are: In chess rows are called ranks
-    #Columns are called files, So i will change my names and map key from programming language to chess language
-    #example: instead of black rook that is on position row 0 col 0 (programming lng) it is on rank 8 file 8 (chess lng)
-    #https://impythonist.wordpress.com/2017/01/01/modeling-a-chessboard-and-mechanics-of-its-pieces-in-python/
-    #article above helped me alot
-    
-    rankToRow = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
-    rowToRank = {v: k for k, v in rankToRow.items()}          #for loop that reverses the values above other way around
-    
-    filesToCol = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7}
-    colToFiles = {v: k for k, v in filesToCol.items()}
-    
-    def __init__(self, startSquare, endSquare, board):
-        self.startRow = startSquare[0]               #keep track of the data
-        self.startCol = startSquare[1]               #from this row, col
-        self.endRow = endSquare[0]                   #to this row, col
-        self.endCol = endSquare[1]
-        self.pieceMoved = board[self.startRow][self.startCol]     #move piece
-        self.pieceCaptured = board[self.endRow][self.endCol]      #capture piece
-        
-    def getChessLikeNotation(self): #notation like in chess (first file then rank)
-        return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol) #i dont understand why i need self here
-        
-    def getRankFile(self, r, c):
-        return self.colToFiles[c] + self.rowToRank[r] #In chess you say first file then rank example a8, d2, f7 this is chess notation
-            
 # Main game loop
 class GameState:
     
@@ -337,9 +320,6 @@ class GameState:
         screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Chess Game")
         
-        squareSelected = ()
-        playerClicks = []
-        
     
         # Initialize ChessBoard
         
@@ -349,40 +329,36 @@ class GameState:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                
-                elif event.type == pygame.MOUSEBUTTONDOWN:                #elif = if previous condition were not true, try this condition
-                    location = pygame.mouse.get_pos()                     #(x, y) location for the mouse.
-                    colClicked = location[0]//squareSize                  #so that it would know where player clicked.
-                    rowClicked = location[1]//squareSize                  #problem: it can store only one position where the player clicked. If the player clicks on another piece it will run out of variable space.
-                
-                    if squareSelected == (rowClicked, colClicked):                #user clicked on the same square twice (NOT VALID MOVE)
-                        squareSelected = ()                         #deselect
-                        playerClicks = ()                           #clear
                     
-                    else:
-                        squareSelected = (rowClicked, colClicked)   #store information about row and col
-                        playerClicks.append(squareSelected)         #Both for 1st and 2nd click .append adds a element to the list. In this case data about where player clicked. 
-                    
-                
-                    
-                #now check if this was players 2nd click
-                if len(playerClicks) == 2: #len = length. if after second click
-                    if ch.board[playerClicks[0][0]][playerClicks[0][1]] == "":
-                        squareSelected = ()  # Reset the squareSelected value.
-                        playerClicks = []  # Reset the playerClicks list.
-                    #if player did 2nd click  change the piece position:
-                    move = Move(playerClicks[0], playerClicks[1], ch.board) 
-                    print(move.getChessLikeNotation())
-                    ch.MovePiece(move)
-                    squareSelected = () #remove information about which square was selected.
-                    playerClicks = []   #so it would not be bigger than 2
-                     
-                            
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_pos = pygame.mouse.get_pos()
+                        clicked_row = mouse_pos[1] // squareSize
+                        clicked_col = mouse_pos[0] // squareSize
+                        clicked_piece = ch.get_piece_at(clicked_row, clicked_col)
+                        
+                        if clicked_piece:
+                            selected_piece = clicked_piece
+                        else:
+                            selected_piece = None
+                             
+                            if selected_piece:
+                                target_piece = ch.get_piece_at(clicked_row, clicked_col)
+                                if target_piece:
+                                    # Capture the target piece if it exists and it's of the opposite color
+                                    if target_piece.color != selected_piece.color:
+                                        # Check if the selected piece is capable of capturing the target piece
+                                        if (clicked_row, clicked_col) in selected_piece.get_moves(ch):
+                                            target_piece.position = None  # Reset target piece position
+                                            ch.remove_piece(clicked_row, clicked_col)
+                                            selected_piece.move_to(ch.board, ChessPiece.target.position)
+                                else:
+                                    # Move the selected piece to the empty square
+                                     selected_piece.move_to(ch.board, ChessPiece.target.position)
                                      
-                Draw.drawBoard(screen, Draw.dimension, squareSize)
-                Draw.drawPieces(screen, ch, squareSize)                       
-                timer.tick(fps)
-                pygame.display.flip()  # Update the screen
+            Draw.drawBoard(screen, Draw.dimension, squareSize)
+            Draw.drawPieces(screen, ch, squareSize)                       
+            timer.tick(fps)
+            pygame.display.flip()  # Update the screen
 
 
 class Draw:
