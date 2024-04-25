@@ -231,15 +231,24 @@ class ChessBoard:
             ["P", "P", "P", "P", "P", "P", "P", "P"],
             ["R", "N", "B", "Q", "K", "B", "N", "R"],
         ]
-        self.whiteTurnMove = True
-        self.MoveLog = []
+        self.whiteTurnMove = True  #whiteTurnMove = False means that it is black 
+        self.MoveLog = []   #tracks and prints all of the moves in the terminal
         self.initialize_pieces()  # initialize the pieces
         
-    def MovePiece(self, move):
+    def MovePiece(self, move): #this move method executes it as a parameter, Will not work for en-passant and castling.
         self.board[move.startRow][move.startCol] = "" #square behind must be empty
         self.board[move.endRow][move.endCol] = move.pieceMoved
-        self.MoveLog.append(move) #i can use the movelog to undo moves
+        self.MoveLog.append(move) #i can use the movelog to undo moves. This will take place in undomoves method.
         self.whiteTurnMove = not self.whiteTurnMove #swap player turn
+        
+    #Undo the last move that has been made
+    
+    def undoMove(self):
+        if len(self.MoveLog) != 0: #Check that move log is not 0
+            move = self.MoveLog.pop()
+            self.board[move.startRow][move.startCol] = move.pieceMoved #reset the movved piece.
+            self.board[move.endRow][move.endCol] = move.pieceCaptured #reset the captured piece
+            self.whiteTurnMove = not self.whiteTurnMove#switch the turn back
         
 
     def initialize_pieces(self):
@@ -362,7 +371,10 @@ class GameState:
                     else:
                         squareSelected = (rowClicked, colClicked)   #store information about row and col
                         playerClicks.append(squareSelected)         #Both for 1st and 2nd click .append adds a element to the list. In this case data about where player clicked. 
-                    
+            
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_z: #undo when z is pressed NOTE pygame key presses are weird af
+                        ch.undoMove()
                 
                     
                 #now check if this was players 2nd click
