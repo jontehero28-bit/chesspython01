@@ -74,10 +74,13 @@ class ChessBoard():
             ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
-            ["--", "--", "--", "--", "--", "--", "--", "--",],
+            ["--", "wR", "--", "--", "--", "--", "--", "--",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR",]]
+        
+        self.moveFunctions = {"P": self.getPawnMoves, "R": self.getRookMoves, "N": self.getKnightMoves, 
+                              "B": self.getBishopMoves, "Q": self.getQueenMoves, "K": self. getKingMoves}   #kind of a dictionarie
         self.whiteTurnMove = True
         self.moveLog = []
         
@@ -143,11 +146,7 @@ class ChessBoard():
                 turn = self.board[r][c][0]                      #crazy lifehack NOTE [0] is for the first letter in the board.
                 if (turn == "w" and self.whiteTurnMove) or (turn == "b" and not self.whiteTurnMove):
                     piece = self.board[r][c][1]
-                    if piece == "P":
-                        self.getPawnMoves(r, c, moves)
-                        
-                    elif piece == "R":
-                        self.getRookMoves(r, c, moves)
+                    self.moveFunctions[piece](r, c, moves)
         return moves
             
     #now get all the pawn and rook moves for the pawn located at row, col and add to the moves list. (later move to pawn  and rook subclass)
@@ -158,7 +157,7 @@ class ChessBoard():
             if self.board[r-1][c] == "--": #1square pawn move = check if square is empty NOTE adds to moves list
                 moves.append(Move((r, c), (r-1, c), self.board)) #(Move((startSquare), (endSquare), board))
                 
-                if r == 6 and self.board[r-2][c] == "--":   #2square pawn move
+                if r == 6 and self.board[r-2][c] == "--":   #2square pawn move r == 6 startrow for all whiteP
                     moves.append(Move((r, c), (r-2, c), self.board))    #adds to moves list
             
             if c-1 >= 0:    #check so piece would not go outside of the board if it wants to capture NOTE captures to the left
@@ -169,8 +168,79 @@ class ChessBoard():
                 if self.board[r-1][c+1][0] == "b":  #enemy piece
                     moves.append(Move((r, c), (r-1, c+1), self.board))    #adds to moves list
                     
+            else: #black pawn moves very similar
+                if self.board[r+1][c] == "--": #1square pawn move = check if square is empty NOTE adds to moves list
+                    moves.append(Move((r, c), (r+1, c), self.board)) #(Move((startSquare), (endSquare), board))
                 
-    def getRookMoves(self, r, c, moves):
+                if r == 1 and self.board[r+2][c] == "--":   #2square pawn move r == 1 startrow for all blackP
+                    moves.append(Move((r, c), (r-2, c), self.board))    #adds to moves list
+            
+            if c-1 >= 0:    #check so piece would not go outside of the board if it wants to capture NOTE captures to the left
+                if self.board[r+1][c-1][0] == "w":   #check if enemy piece is there. [0] = "2"
+                    moves.append(Move((r, c), (r+1, c-1), self.board))    #adds to moves list
+            
+            if c+1 <= 7:  #captures to the right
+                if self.board[r+1][c+1][0] == "w":  #enemy piece white
+                    moves.append(Move((r, c), (r+1, c+1), self.board))    #adds to moves list
+                    
+        #add pawn promotions later NOTE i dont have time to do this before this project is due.
+                    
+                
+    def getRookMoves(self, r, c, moves):   #pretty similar to my old rule set
+        directions = ((-1, 0,), (0, -1), (1, 0), (0, 1)) #up, left, down, right
+        enemyColor = "b" if self.whiteTurnMove else "w"
+        
+        for d in directions:
+            for i in range (1, 8):
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0 <= endCol < 8: #piece is on board
+                    endPiece = self.board[endRow][endRow]
+                    if endPiece == "--":     #empty space
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:   #enemy piece valid
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break
+                    else:   #friendly piece valid
+                        break
+                else:  #piece off board
+                    break
+    
+    #NOTE https://impythonist.wordpress.com/2017/01/01/modeling-a-chessboard-and-mechanics-of-its-pieces-in-python/
+    def getKnightMoves(self, r, c, moves):
+        knightMoves = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (1, 2), (2, -1), (2, 1))
+        allyColor = "w" if self.whiteTurnMove else "b"
+        for m in knightMoves:
+            endRow = r + m[0]
+            endCol = c + m[1]
+            if 0 <= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor:   #not an ally piece
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
+    
+    def getBishopMoves(self, r, c, moves):   #also similar to rook and my old rule scheme and thanks to that i save a lot of time.
+        directions = ((-1, -1,), (-1, 1), (1, -1), (1, 1)) #diagonals, X
+        enemyColor = "b" if self.whiteTurnMove else "w"
+        for d in directions:
+            for i in range (1, 8):
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--": #empty
+                        moves.append(Move(r, c), (endRow, endCol), self.board)
+                    elif endPiece[0] == enemyColor:    #enemy piece valid
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break
+                    else: #friendly piece yo
+                        break
+                else:   #off board yo
+                    break
+    
+    def getQueenMoves(self, r, c, moves):
+        pass
+    
+    def getKingMoves(self, r, c, moves):
         pass
     
 class Move():
