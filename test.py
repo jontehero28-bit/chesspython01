@@ -74,7 +74,7 @@ class ChessBoard():
             ["bP", "bP", "bP", "bP", "bP", "bP", "bP", "bP",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
-            ["--", "wR", "--", "--", "--", "--", "--", "--",],
+            ["--", "--", "--", "--", "--", "--", "--", "--",],
             ["--", "--", "--", "--", "--", "--", "--", "--",],
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR",]]
@@ -233,15 +233,26 @@ class ChessBoard():
                         moves.append(Move((r, c), (endRow, endCol), self.board))
                         break
                     else: #friendly piece yo
-                        break
+                       break
                 else:   #off board yo
                     break
     
-    def getQueenMoves(self, r, c, moves):
-        pass
+    def getQueenMoves(self, r, c, moves):  #rook + bishop = queen. fw wit dat
+        self.getRookMoves(r, c, moves)     
+        self.getBishopMoves(r, c, moves)
     
-    def getKingMoves(self, r, c, moves):
-        pass
+    def getKingMoves(self, r, c, moves): #kinda ish simillar to knight moves
+        kingMoves = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+        allyColor = "w" if self.whiteTurnMove else "b"
+        for i in range(8):
+            endRow = r + kingMoves [i][0]
+            endCol = c + kingMoves [i][1]
+            if 0 <= endRow < 8 and 0 <= endCol < 8:
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor: #empty or enemypiece
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
+        
+        
     
 class Move():
     
