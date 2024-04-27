@@ -1,3 +1,10 @@
+'''
+I know it would be more proper to move all the getPieceMove to designated Chesspiece subclasses but i dont have time to change this right now.
+I can komplettera later
+also i showed that my rules can be in subclasses in previous commits.
+my class diagram will show how it looks right now, today.
+'''
+
 # Import Modules/Libraries
 import pygame
 import sys
@@ -346,6 +353,7 @@ class GameState:
                     print(move.getChessLikeNotation())   
                     if move in validMoves:    #checka att det finns i validmoves
                         ch.MovePiece(move)
+                        print("White turn move:", ch.whiteTurnMove)  # print the current turn
                         moveMade = True
                         
                     squareSelected = () #remove information about which square was selected.
