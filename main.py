@@ -1,3 +1,6 @@
+# I know this is not a proper way to handle code (everything in one document)
+#but after i create new files i get weird syntax fails.
+
 # Import Modules/Libraries
 import pygame
 import sys
@@ -79,6 +82,9 @@ class ChessBoard():
             ["wP", "wP", "wP", "wP", "wP", "wP", "wP", "wP",],
             ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR",]]
         
+        self.moveFunctions = {"P": self.getPawnMoves, "R": self.getRookMoves, "N": self.getKnightMoves, 
+                              "B": self.getBishopMoves, "Q": self.getQueenMoves, "K": self.getKingMoves}
+        
         self.moveLog = []
         
     def MovePiece(self, move):
@@ -143,18 +149,7 @@ class ChessBoard():
                 turn = self.board[r][c][0]                      #crazy lifehack NOTE [0] is for the first letter in the board.
                 if (turn == "w" and self.whiteTurnMove) or (turn == "b" and not self.whiteTurnMove):
                     piece = self.board[r][c][1]
-                    if piece == "P":
-                        self.getPawnMoves(r, c, moves)
-                    elif piece =="R":
-                        self.getRookMoves(r, c, moves)
-                    elif piece =="N":
-                        self.getKnightMoves(r, c, moves)
-                    elif piece =="B":
-                        self.getBishopMoves(r, c, moves)
-                    elif piece =="Q":
-                        self.getQueenMoves(r, c, moves)
-                    elif piece =="K":
-                        self.getKingMoves(r, c, moves)
+                    self.moveFunctions[piece](r, c, moves) #calls the moves that are needed
         return moves
             
     #now get all the pawn and rook moves for the pawn located at row, col and add to the moves list. (later move to pawn  and rook subclass)
